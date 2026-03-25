@@ -95,11 +95,11 @@ pub struct DeviceResponse {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Device {
-    device_id: String,
-    name: String,
-    device_number: String,
-    device_platform: String,
-    status: String,
-    device_class: String,
-    expiration_date: Option<Date>,
+    pub device_id: String,
+    pub name: String,
+    pub device_number: String,
+    pub device_platform: String,
+    pub status: String,
+    pub device_class: String,
+    pub expiration_date: Option<Date>,
 }

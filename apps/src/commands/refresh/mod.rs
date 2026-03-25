@@ -144,6 +144,6 @@ async fn remove_refresh(args: RefreshRemoveArgs) -> Result<()> {
         store.remove_refresh_device(&udid).await?;
     }
 
-    log::info!("Removed refresh registration for {}", udid);
+    crate::ui::success(format!("Removed refresh registration for {}", udid));
     Ok(())
 }

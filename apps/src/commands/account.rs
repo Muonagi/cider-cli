@@ -158,7 +158,7 @@ async fn login(args: LoginArgs) -> Result<()> {
         Ok((username.clone(), password.clone()))
     };
 
-    println!("Logging in...");
+    let sp = crate::ui::spinner("Logging in...");
     let account = Account::login(login_closure, tfa_closure, anisette_config).await?;
 
     let mut settings = load_account_store().await?;
@@ -166,7 +166,7 @@ async fn login(args: LoginArgs) -> Result<()> {
         .accounts_add_from_session(username, account)
         .await?;
 
-    log::info!("Successfully logged in and account saved.");
+    crate::ui::finish_spinner(&sp, "Logged in and account saved");
 
     Ok(())
 }
@@ -182,21 +182,22 @@ async fn logout() -> Result<()> {
 
     settings.accounts_remove(&email).await?;
 
-    log::info!("Successfully logged out and removed account.");
+    crate::ui::success("Logged out and removed account");
 
     Ok(())
 }
 
 async fn select_team(args: TeamArgs) -> Result<()> {
     let account = get_selected_or_named_account(args.email.as_deref()).await?;
-    let team_id = resolve_team_id(&account, args.team_id.as_deref(), true).await?;
+    let session = create_session(&account).await?;
+    let team_id = resolve_team_id(&session, &account, args.team_id.as_deref(), true)?;
 
     let mut settings = load_account_store().await?;
     settings
         .update_account_team(account.email(), team_id.clone())
         .await?;
 
-    log::info!("Selected team {} for {}", team_id, account.email());
+    crate::ui::success(format!("Selected team {} for {}", team_id, account.email()));
 
     Ok(())
 }
@@ -204,7 +205,7 @@ async fn select_team(args: TeamArgs) -> Result<()> {
 async fn export_p12(args: ExportP12Args) -> Result<()> {
     let account = get_selected_or_named_account(args.email.as_deref()).await?;
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, None, false).await?;
+    let team_id = resolve_team_id(&session, &account, None, false)?;
 
     let identity =
         CertificateIdentity::new_with_session(&session, get_data_path(), None, &team_id, true)
@@ -219,7 +220,7 @@ async fn export_p12(args: ExportP12Args) -> Result<()> {
         .unwrap_or_else(|| get_data_path().join(format!("{team_id}_certificate.p12")));
 
     tokio::fs::write(&output, p12_data).await?;
-    log::info!("Saved certificate to {}", output.display());
+    crate::ui::success(format!("Saved certificate to {}", output.display()));
 
     Ok(())
 }
@@ -227,11 +228,45 @@ async fn export_p12(args: ExportP12Args) -> Result<()> {
 async fn certificates(args: CertificatesArgs) -> Result<()> {
     let account = get_selected_account().await?;
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, args.team_id.as_deref(), false).await?;
+    let team_id = resolve_team_id(&session, &account, args.team_id.as_deref(), false)?;
 
     let certs = session.qh_list_certs(&team_id).await?.certificates;
 
-    log::info!("{:#?}", certs);
+    if certs.is_empty() {
+        crate::ui::status("No certificates found.");
+        return Ok(());
+    }
+
+    crate::ui::header(format!("Certificates ({})", certs.len()));
+    for (i, cert) in certs.iter().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        let status_style = match cert.status.as_str() {
+            "Issued" => console::style(&cert.status).green(),
+            "Revoked" | "Expired" => console::style(&cert.status).red(),
+            _ => console::style(&cert.status).yellow(),
+        };
+        let type_name = cert
+            .cert_type
+            .as_ref()
+            .map(|t| t.name.as_str())
+            .unwrap_or("Unknown");
+        println!(
+            "  {} {}",
+            console::style(&cert.name).bold(),
+            console::style(format!("({})", type_name)).dim(),
+        );
+        println!(
+            "    Serial: {} · Status: {} · Expires: {}",
+            cert.serial_number,
+            status_style,
+            cert.expiration_date.to_xml_format(),
+        );
+        if let Some(machine) = &cert.machine_name {
+            println!("    Machine: {}", machine);
+        }
+    }
 
     Ok(())
 }
@@ -239,11 +274,30 @@ async fn certificates(args: CertificatesArgs) -> Result<()> {
 async fn devices(args: DevicesArgs) -> Result<()> {
     let account = get_selected_account().await?;
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, args.team_id.as_deref(), false).await?;
+    let team_id = resolve_team_id(&session, &account, args.team_id.as_deref(), false)?;
 
     let devices = session.qh_list_devices(&team_id).await?.devices;
 
-    log::info!("{:#?}", devices);
+    if devices.is_empty() {
+        crate::ui::status("No devices found.");
+        return Ok(());
+    }
+
+    crate::ui::header(format!("Devices ({})", devices.len()));
+    for (i, device) in devices.iter().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        println!(
+            "  {} {}",
+            console::style(&device.name).bold(),
+            console::style(format!("({})", device.device_class)).dim(),
+        );
+        println!(
+            "    UDID: {} · Status: {}",
+            device.device_number, device.status,
+        );
+    }
 
     Ok(())
 }
@@ -251,14 +305,17 @@ async fn devices(args: DevicesArgs) -> Result<()> {
 async fn register_device(args: RegisterDeviceArgs) -> Result<()> {
     let account = get_selected_account().await?;
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, args.team_id.as_deref(), false).await?;
+    let team_id = resolve_team_id(&session, &account, args.team_id.as_deref(), false)?;
 
     let device = session
         .qh_add_device(&team_id, &args.name, &args.udid)
         .await?
         .device;
 
-    log::info!("{:#?}", device);
+    crate::ui::success(format!(
+        "Registered device: {} ({})",
+        device.name, device.device_number
+    ));
 
     Ok(())
 }
@@ -266,11 +323,27 @@ async fn register_device(args: RegisterDeviceArgs) -> Result<()> {
 async fn app_ids(args: AppIdsArgs) -> Result<()> {
     let account = get_selected_account().await?;
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, args.team_id.as_deref(), false).await?;
+    let team_id = resolve_team_id(&session, &account, args.team_id.as_deref(), false)?;
 
     let app_ids = session.v1_list_app_ids(&team_id, None).await?.data;
 
-    log::info!("{:#?}", app_ids);
+    if app_ids.is_empty() {
+        crate::ui::status("No app IDs found.");
+        return Ok(());
+    }
+
+    crate::ui::header(format!("App IDs ({})", app_ids.len()));
+    for (i, app) in app_ids.iter().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        println!(
+            "  {} {}",
+            console::style(&app.attributes.name).bold(),
+            console::style(format!("({})", app.id)).dim(),
+        );
+        println!("    Bundle: {}", app.attributes.identifier);
+    }
 
     Ok(())
 }
@@ -281,7 +354,7 @@ async fn list_accounts() -> Result<()> {
     let accounts = settings.accounts();
 
     if accounts.is_empty() {
-        log::info!("No accounts found. Use 'impactor account login' to add an account.");
+        crate::ui::status("No accounts found. Use 'impactor account login' to add an account.");
         return Ok(());
     }
 
@@ -289,24 +362,26 @@ async fn list_accounts() -> Result<()> {
         .selected_account()
         .map(|account| account.email().clone());
 
-    log::info!("Saved accounts:");
+    crate::ui::header("Saved accounts");
     for (email, account) in accounts {
-        let selected = if Some(email) == selected_email.as_ref() {
-            "(selected)"
+        let marker = if Some(email) == selected_email.as_ref() {
+            console::style("●").green().to_string()
         } else {
-            ""
+            console::style("○").dim().to_string()
         };
 
-        log::info!(
-            " [{}] {} {} team={}",
-            account.first_name(),
+        let team = if account.team_id().is_empty() {
+            "<auto>"
+        } else {
+            account.team_id()
+        };
+
+        println!(
+            "  {} {} ({}) team={}",
+            marker,
             email,
-            selected,
-            if account.team_id().is_empty() {
-                "<auto>"
-            } else {
-                account.team_id()
-            }
+            account.first_name(),
+            team
         );
     }
 
@@ -325,7 +400,7 @@ async fn switch_account(args: SwitchArgs) -> Result<()> {
 
     settings.account_select(&args.email).await?;
 
-    log::info!("Switched to account: {}", args.email);
+    crate::ui::success(format!("Switched to account: {}", args.email));
 
     Ok(())
 }

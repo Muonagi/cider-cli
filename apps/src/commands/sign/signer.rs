@@ -70,7 +70,7 @@ pub(super) async fn build_signer(
     if options.mode == SignerMode::Pem {
         let account = get_selected_account().await?;
         let session = create_session(&account).await?;
-        let team_id = resolve_team_id(&account, None, false).await?;
+        let team_id = resolve_team_id(&session, &account, None, false)?;
         let identity =
             CertificateIdentity::new_with_session(&session, get_data_path(), None, &team_id, false)
                 .await?;

@@ -54,34 +54,55 @@ pub async fn get_selected_or_named_account(email: Option<&str>) -> Result<GsaAcc
 pub async fn create_session(account: &GsaAccount) -> Result<DeveloperSession> {
     let anisette_config = AnisetteConfiguration::default().set_configuration_path(get_data_path());
 
-    log::info!("Restoring session for {}...", account.email());
+    let sp = crate::ui::spinner(format!("Restoring session for {}...", account.email()));
 
-    Ok(DeveloperSession::new(
+    let session = DeveloperSession::new(
         account.adsid().clone(),
         account.xcode_gs_token().clone(),
         anisette_config,
     )
-    .await?)
+    .await?;
+
+    crate::ui::finish_spinner(&sp, format!("Session restored for {}", account.email()));
+
+    Ok(session)
 }
 
-pub async fn available_teams(account: &GsaAccount) -> Result<Vec<TeamChoice>> {
-    let session = create_session(account).await?;
-    let teams = session.qh_list_teams().await?.teams;
-    Ok(teams
-        .into_iter()
+pub fn available_teams(session: &DeveloperSession) -> Vec<TeamChoice> {
+    session
+        .cached_teams()
+        .iter()
         .map(|team| TeamChoice {
-            name: team.name,
-            id: team.team_id,
+            name: team.name.clone(),
+            id: team.team_id.clone(),
         })
-        .collect())
+        .collect()
 }
 
-pub async fn resolve_team_id(
+pub fn resolve_team_id(
+    session: &DeveloperSession,
     account: &GsaAccount,
     requested_team: Option<&str>,
     prompt_if_needed: bool,
 ) -> Result<String> {
-    let teams = available_teams(account).await?;
+    if let Some(team_id) = requested_team {
+        let teams = available_teams(session);
+        if teams.iter().any(|team| team.id == team_id) {
+            return Ok(team_id.to_string());
+        }
+        return Err(anyhow!(
+            "Team '{}' was not found for account {}",
+            team_id,
+            account.email()
+        ));
+    }
+
+    // Fast path: use stored team_id without re-querying
+    if !prompt_if_needed && !account.team_id().is_empty() {
+        return Ok(account.team_id().clone());
+    }
+
+    let teams = available_teams(session);
 
     if teams.is_empty() {
         return Err(anyhow!(
@@ -90,23 +111,7 @@ pub async fn resolve_team_id(
         ));
     }
 
-    if let Some(team_id) = requested_team {
-        if teams.iter().any(|team| team.id == team_id) {
-            return Ok(team_id.to_string());
-        }
-
-        return Err(anyhow!(
-            "Team '{}' was not found for account {}",
-            team_id,
-            account.email()
-        ));
-    }
-
     if !prompt_if_needed {
-        if !account.team_id().is_empty() && teams.iter().any(|team| team.id == *account.team_id()) {
-            return Ok(account.team_id().clone());
-        }
-
         return Ok(teams[0].id.clone());
     }
 

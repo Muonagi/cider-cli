@@ -141,38 +141,52 @@ pub async fn execute(args: SignArgs) -> Result<()> {
     }
 
     if let Some((account, session, team_id)) = account_team.as_ref() {
+        let sp = crate::ui::spinner("Modifying bundle...");
         signer
             .modify_bundle(&bundle, &Some(team_id.clone()))
             .await?;
+        crate::ui::finish_spinner(&sp, "Bundle modified");
 
         if let Some(dev) = device.as_ref() {
             if !dev.is_mac {
+                let sp = crate::ui::spinner("Registering device...");
                 session
                     .qh_ensure_device(team_id, &dev.name, &dev.udid)
                     .await?;
+                crate::ui::finish_spinner(&sp, "Device registered");
             }
         }
 
+        let sp = crate::ui::spinner("Registering bundle with Apple...");
         signer
             .register_bundle(&bundle, session, team_id, false)
             .await?;
+        crate::ui::finish_spinner(&sp, "Bundle registered");
+
+        let sp = crate::ui::spinner("Signing bundle...");
         signer.sign_bundle(&bundle).await?;
+        crate::ui::finish_spinner(&sp, "Bundle signed");
 
         if options.refresh {
             let mut store = load_store().await?;
             save_refresh_registration(&mut store, &bundle, &device, account).await?;
         }
     } else if options.mode != SignerMode::None {
+        let sp = crate::ui::spinner("Modifying bundle...");
         signer.modify_bundle(&bundle, &None).await?;
+        crate::ui::finish_spinner(&sp, "Bundle modified");
+
+        let sp = crate::ui::spinner("Signing bundle...");
         signer.sign_bundle(&bundle).await?;
+        crate::ui::finish_spinner(&sp, "Bundle signed");
     }
 
     match action {
         PostSignAction::StayInPlace => {
-            log::info!(
+            crate::ui::success(format!(
                 "Signed bundle in place at {}",
                 bundle.bundle_dir().display()
-            );
+            ));
         }
         PostSignAction::Install => {
             let device = device.ok_or_else(|| anyhow!("No device selected for install"))?;
@@ -185,7 +199,7 @@ pub async fn execute(args: SignArgs) -> Result<()> {
                 .ok_or_else(|| anyhow!("Export is only supported for .ipa input"))?;
             let archived_path = package.get_archive_based_on_path(&args.package)?;
             tokio::fs::copy(&archived_path, &output).await?;
-            log::info!("Saved signed package to {}", output.display());
+            crate::ui::success(format!("Saved signed package to {}", output.display()));
         }
     }
 

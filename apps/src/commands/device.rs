@@ -162,8 +162,9 @@ async fn trust_device(target: DeviceTargetArgs) -> Result<()> {
         ));
     }
 
+    let sp = crate::ui::spinner(format!("Pairing {}...", device.name));
     device.pair().await?;
-    log::info!("Paired device {}", device.name);
+    crate::ui::finish_spinner(&sp, format!("Paired device {}", device.name));
     Ok(())
 }
 
@@ -206,17 +207,24 @@ async fn install_app(args: InstallArgs) -> Result<()> {
     }
 
     if device.is_mac {
-        log::info!("Installing app at {:?} to connected Mac", app_path);
+        let sp = crate::ui::spinner("Installing to Mac...");
         plume_utils::install_app_mac(&app_path).await?;
+        crate::ui::finish_spinner(&sp, "Installed to Mac");
         return Ok(());
     }
 
-    log::info!("Installing app at {:?} to device {}", app_path, device.name);
+    let pb = crate::ui::progress_bar(100);
+    let pb_clone = pb.clone();
     device
-        .install_app(&app_path, |progress| async move {
-            log::info!("Installation progress: {}%", progress);
+        .install_app(&app_path, move |progress| {
+            let pb = pb_clone.clone();
+            async move {
+                pb.set_position(progress as u64);
+            }
         })
         .await?;
+    pb.finish_and_clear();
+    crate::ui::success(format!("Installed to {}", device.name));
 
     Ok(())
 }
@@ -250,15 +258,12 @@ async fn install_pairing(args: PairingArgs) -> Result<()> {
         ),
     };
 
+    let sp = crate::ui::spinner("Installing pairing record...");
     device
         .install_pairing_record(&bundle_id, &pairing_path.to_string_lossy())
         .await?;
 
-    log::info!(
-        "Installed pairing record for {} at {}",
-        bundle_id,
-        pairing_path.display()
-    );
+    crate::ui::finish_spinner(&sp, format!("Installed pairing record for {}", bundle_id));
 
     Ok(())
 }

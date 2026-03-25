@@ -51,7 +51,7 @@ impl Device {
         Device {
             name,
             udid: usbmuxd_device.udid.clone(),
-            device_id: usbmuxd_device.device_id.clone(),
+            device_id: usbmuxd_device.device_id,
             usbmuxd_device: Some(usbmuxd_device),
             is_mac: false,
         }
@@ -192,9 +192,9 @@ impl Device {
 
             for component in parent.components() {
                 if let Component::Normal(dir) = component {
-                    if has_root && current.is_empty() {
-                        current.push('/');
-                    } else if !current.is_empty() && !current.ends_with('/') {
+                    if (has_root && current.is_empty())
+                        || (!current.is_empty() && !current.ends_with('/'))
+                    {
                         current.push('/');
                     }
 

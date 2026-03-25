@@ -24,7 +24,7 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Sign an iOS app bundle with certificate and provisioning profile
-    Sign(sign::SignArgs),
+    Sign(Box<sign::SignArgs>),
     /// Manage Apple Developer account authentication
     Account(account::AccountArgs),
     /// Device management commands

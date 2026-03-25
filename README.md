@@ -93,9 +93,6 @@ cargo build -p impactor
 # Run the CLI
 impactor --help
 
-# Run tests
-cargo test -p impactor
-
 # Build a distributable binary into ./dist
 make dist
 ```

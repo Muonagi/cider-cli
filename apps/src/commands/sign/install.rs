@@ -13,16 +13,23 @@ pub(super) async fn install_signed_bundle(
     bundle: &Bundle,
     device: &plume_utils::Device,
 ) -> Result<()> {
-    log::info!("Installing to device: {}", device.name);
-
     if device.is_mac {
+        let sp = crate::ui::spinner("Installing to Mac...");
         plume_utils::install_app_mac(bundle.bundle_dir()).await?;
+        crate::ui::finish_spinner(&sp, "Installed to Mac");
     } else {
+        let pb = crate::ui::progress_bar(100);
+        let pb_clone = pb.clone();
         device
-            .install_app(bundle.bundle_dir(), |progress| async move {
-                log::info!("Installation progress: {}%", progress);
+            .install_app(bundle.bundle_dir(), move |progress| {
+                let pb = pb_clone.clone();
+                async move {
+                    pb.set_position(progress as u64);
+                }
             })
             .await?;
+        pb.finish_and_clear();
+        crate::ui::success(format!("Installed to {}", device.name));
     }
 
     Ok(())

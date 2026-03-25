@@ -4,44 +4,86 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Impactor is a CLI iOS signing and sideloading tool written in Rust (2024 edition). It signs and installs iOS apps on macOS, Linux, and Windows.
+Impactor is a CLI tool for signing and sideloading iOS apps, written in Rust (2024 edition). It handles Apple Developer authentication, certificate/provisioning profile management, code signing, and on-device installation. Targets macOS, Linux, and Windows.
 
 ## Workspace Structure
 
-This is a Cargo workspace with 5 crates:
+Cargo workspace with 5 crates:
 
-- `apps` — CLI application (binary name: `impactor`), uses clap + dialoguer
-- `crates/plume_core` — Auth, provisioning, certificates, Mach-O helpers, signing (MPL-2.0)
-- `crates/plume_utils` — Bundle, package, device, signing, tweak, install helpers
-- `crates/plume_store` — Local account and refresh persistence (~/.config/Impactor/)
-- `crates/plume_gestalt` — macOS-only wrapper for libMobileGestalt (Mac UDID for Apple Silicon sideloading)
-
-## Build Commands
-
-```sh
-cargo build -p impactor          # Build the CLI
-PROFILE=release make dist        # Release build → dist/
-make install                     # Install to /usr/local/bin (PREFIX configurable)
-cargo test --workspace           # Run all tests
+```
+apps/                          # CLI binary ("impactor") — clap + dialoguer
+  src/commands/
+    sign/                      # Sign + install workflows
+    refresh/                   # Refresh registration flows
+    account.rs                 # Apple account auth
+    device.rs                  # Device management
+    session.rs                 # Session handling
+    macho.rs                   # Mach-O inspection
+crates/
+  plume_core/                  # Core library (MPL-2.0 licensed)
+    src/auth/                  # Apple auth (GSA/Anisette)
+    src/developer/             # Developer portal sessions + provisioning
+    src/utils/                 # Certificates, Mach-O parsing, provisioning profiles
+  plume_utils/                 # Higher-level helpers
+    src/                       # Bundle, package, device, signer, tweak, install
+  plume_store/                 # Persistence layer (~/.config/Impactor/ or %APPDATA%)
+    src/                       # Account storage, refresh tokens, key-value store
+  plume_gestalt/               # macOS-only: MobileGestalt wrapper (Mac UDID retrieval)
 ```
 
-Requires: Rust (rustup), CMake, C++ compiler.
+### Dependency graph
+
+`apps` depends on all four library crates. `plume_utils` depends on `plume_core` and `plume_store`. `plume_store` depends on `plume_core`. `plume_gestalt` is standalone (no Rust deps, links native frameworks).
+
+## Build & Run
+
+```sh
+cargo build -p impactor                # Debug build
+PROFILE=release make dist              # Release build → dist/impactor
+make clean                             # Remove dist/ and target/
+```
+
+Requires: Rust (via rustup), CMake, C++ compiler.
+
+## CLI Commands
+
+```
+impactor sign       # Sign an iOS app bundle
+impactor account    # Manage Apple Developer account auth
+impactor device     # Device management
+impactor refresh    # Manage refresh registrations
+impactor inspect    # Inspect Mach-O binaries
+```
 
 ## Custom Forks
 
-Several dependencies use custom forks under the PlumeImpactor GitHub org. When updating dependencies, note these are pinned to specific revisions:
+Dependencies under the PlumeImpactor GitHub org, pinned to specific revisions:
 
-- `idevice` → plume-idevice
-- `apple-codesign` → plume-apple-platform-rs
-- `omnisette` → custom fork
-- `decompress` → custom fork
+| Crate          | Fork repo                                     |
+|----------------|-----------------------------------------------|
+| `idevice`      | `PlumeImpactor/plume-idevice`                 |
+| `apple-codesign`| `PlumeImpactor/plume-apple-platform-rs`       |
+| `omnisette`    | `PlumeImpactor/omnisette`                     |
+| `decompress`   | `PlumeImpactor/decompress`                    |
+
+When updating these, always pin to a specific `rev` in Cargo.toml.
 
 ## Platform-Conditional Compilation
 
-`plume_gestalt` is macOS-only — it links against MobileGestalt.framework and CoreFoundation via a build script. Guard any references to it with `#[cfg(target_os = "macos")]`.
+`plume_gestalt` is macOS-only. It links `MobileGestalt` and `CoreFoundation` via `build.rs`. Guard all references with `#[cfg(target_os = "macos")]`. The `apps` crate already does this in its `Cargo.toml` via a `[target.'cfg(target_os = "macos")'.dependencies]` section.
+
+## Key Technical Details
+
+- **Crypto stack**: ring (via rustls), plus aes/aes-gcm/cbc/pbkdf2/hmac/sha2/rsa/srp for Apple auth flows.
+- **HTTP**: reqwest 0.11 with rustls-tls (no native TLS).
+- **Device communication**: `idevice` crate (custom fork) for USB/network communication with iOS devices.
+- **Code signing**: `apple-codesign` crate (custom fork) for Mach-O signing.
+- **Feature flag**: `tweaks` — enables optional tweak injection in plume_core/plume_utils. The `apps` crate enables it on plume_core by default.
 
 ## Conventions
 
-- Use conventional commits: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.
-- Release profile is optimized for binary size (LTO, panic=abort, strip=symbols, opt-level="s").
-- The `tweaks` feature flag enables optional functionality in plume_core/plume_utils.
+- **Commits**: conventional commits (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.)
+- **Release profile**: optimized for binary size — LTO, `panic=abort`, `strip=symbols`, `opt-level="s"`, split debuginfo.
+- **Error handling**: `thiserror` for library crates, `anyhow` in the CLI app.
+- **Async runtime**: tokio (full features).
+- **Formatting**: default `rustfmt` settings (empty `rustfmt.toml`).

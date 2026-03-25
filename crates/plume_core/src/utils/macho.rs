@@ -180,10 +180,10 @@ impl<'a> MachOExt for MachOBinary<'a> {
             macho.load_commands.iter().any(|load_cmd| {
                 if let CommandVariant::LoadDylib(dylib) = &load_cmd.command {
                     extract_dylib_path(&self.data, base_offset + load_cmd.offset, dylib.dylib.name)
-                        .map_or(false, |name| name == path)
+                        .is_some_and(|name| name == path)
                 } else {
                     manually_parse_dylib(&self.data, base_offset + load_cmd.offset)
-                        .map_or(false, |name| name == path)
+                        .is_some_and(|name| name == path)
                 }
             })
         };

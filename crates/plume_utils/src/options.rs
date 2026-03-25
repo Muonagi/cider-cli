@@ -83,16 +83,11 @@ pub struct SignerEmbedding {
     pub single_profile: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum SignerInstallMode {
+    #[default]
     Install,
     Export,
-}
-
-impl Default for SignerInstallMode {
-    fn default() -> Self {
-        SignerInstallMode::Install
-    }
 }
 
 impl std::fmt::Display for SignerInstallMode {
@@ -104,17 +99,12 @@ impl std::fmt::Display for SignerInstallMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum SignerMode {
+    #[default]
     Pem,
     Adhoc,
     None,
-}
-
-impl Default for SignerMode {
-    fn default() -> Self {
-        SignerMode::Pem
-    }
 }
 
 impl std::fmt::Display for SignerMode {

@@ -112,11 +112,11 @@ async fn refresh_one(
     app: &RefreshApp,
     device: &Device,
 ) -> Result<()> {
-    log::info!(
+    crate::ui::header(format!(
         "Refreshing {} for {}",
         app.bundle_id.as_deref().unwrap_or("unknown"),
         refresh_device.name
-    );
+    ));
 
     let account = store
         .get_account(&refresh_device.account)
@@ -124,14 +124,14 @@ async fn refresh_one(
         .ok_or_else(|| anyhow!("Account {} not found", refresh_device.account))?;
 
     let session = create_session(&account).await?;
-    let team_id = resolve_team_id(&account, None, false).await?;
+    let team_id = resolve_team_id(&session, &account, None, false)?;
 
-    let identity_is_new = {
-        let identity =
-            CertificateIdentity::new_with_session(&session, get_data_path(), None, &team_id, false)
-                .await?;
-        identity.new
-    };
+    let sp = crate::ui::spinner("Checking certificate...");
+    let identity =
+        CertificateIdentity::new_with_session(&session, get_data_path(), None, &team_id, false)
+            .await?;
+    let identity_is_new = identity.new;
+    crate::ui::finish_spinner(&sp, "Certificate checked");
 
     let is_installed = if let Some(bundle_id) = app.bundle_id.as_deref() {
         if device.is_mac {
@@ -146,7 +146,7 @@ async fn refresh_one(
     let needs_reinstall = device.is_mac || identity_is_new || !is_installed;
 
     if needs_reinstall {
-        resign_and_reinstall(app, device, &session, &team_id).await?;
+        resign_and_reinstall(app, device, &session, &team_id, identity).await?;
     } else {
         update_provisioning_profiles(app, device, &session, &team_id).await?;
     }
@@ -161,6 +161,7 @@ async fn resign_and_reinstall(
     device: &Device,
     session: &DeveloperSession,
     team_id: &str,
+    signing_identity: CertificateIdentity,
 ) -> Result<()> {
     if should_register_portal_device(device) {
         session
@@ -170,9 +171,6 @@ async fn resign_and_reinstall(
 
     let bundle = Bundle::new(app.path.clone())?;
     let team_id = team_id.to_string();
-    let signing_identity =
-        CertificateIdentity::new_with_session(session, get_data_path(), None, &team_id, false)
-            .await?;
     let mut signer = Signer::new(
         Some(signing_identity),
         SignerOptions {
@@ -181,15 +179,33 @@ async fn resign_and_reinstall(
         },
     );
 
+    let sp = crate::ui::spinner("Registering bundle...");
     signer
         .register_bundle(&bundle, session, &team_id, true)
         .await?;
+    crate::ui::finish_spinner(&sp, "Bundle registered");
+
+    let sp = crate::ui::spinner("Signing bundle...");
     signer.sign_bundle(&bundle).await?;
+    crate::ui::finish_spinner(&sp, "Bundle signed");
 
     if device.is_mac {
+        let sp = crate::ui::spinner("Installing to Mac...");
         plume_utils::install_app_mac(&app.path).await?;
+        crate::ui::finish_spinner(&sp, "Installed to Mac");
     } else {
-        device.install_app(&app.path, |_| async {}).await?;
+        let pb = crate::ui::progress_bar(100);
+        let pb_clone = pb.clone();
+        device
+            .install_app(&app.path, move |progress| {
+                let pb = pb_clone.clone();
+                async move {
+                    pb.set_position(progress as u64);
+                }
+            })
+            .await?;
+        pb.finish_and_clear();
+        crate::ui::success(format!("Installed to {}", device.name));
     }
 
     Ok(())
@@ -210,6 +226,7 @@ async fn update_provisioning_profiles(
         },
     );
 
+    let sp = crate::ui::spinner("Updating provisioning profiles...");
     signer
         .register_bundle(&bundle, session, &team_id.to_string(), true)
         .await?;
@@ -217,6 +234,7 @@ async fn update_provisioning_profiles(
     for provision in &signer.provisioning_files {
         device.install_profile(provision).await?;
     }
+    crate::ui::finish_spinner(&sp, "Provisioning profiles updated");
 
     Ok(())
 }

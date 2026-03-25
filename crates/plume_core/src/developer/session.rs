@@ -14,6 +14,7 @@ use crate::Error;
 use crate::auth::Account;
 use crate::auth::anisette_data::AnisetteData;
 use crate::developer::qh::QHResponseMeta;
+use crate::developer::qh::teams::Team;
 use crate::developer::v1::V1ErrorResponse;
 
 pub struct DeveloperSession {
@@ -21,6 +22,7 @@ pub struct DeveloperSession {
     client: Client,
     adsid: String,          // from grandslam's SPD "adsid"
     xcode_gs_token: String, // requested from spd initially // com.apple.gs.xcode.auth
+    teams: Vec<Team>,
 }
 
 impl DeveloperSession {
@@ -43,6 +45,7 @@ impl DeveloperSession {
             client: account.client.clone(),
             adsid: adsid.into(),
             xcode_gs_token,
+            teams: Vec::new(),
         })
     }
 
@@ -62,16 +65,17 @@ impl DeveloperSession {
     ) -> Result<Self, Error> {
         let client = crate::client()?;
 
-        let s = Self {
+        let mut s = Self {
             anisette,
             client,
             adsid,
             xcode_gs_token,
+            teams: Vec::new(),
         };
 
-        // we test the session by listing teams
-        // if this fails, the session is invalid (obviously)
-        s.qh_list_teams().await?;
+        // validate the session by listing teams, cache the result
+        let teams_response = s.qh_list_teams().await?;
+        s.teams = teams_response.teams;
 
         Ok(s)
     }
@@ -82,6 +86,10 @@ impl DeveloperSession {
 
     pub fn xcode_gs_token(&self) -> &String {
         &self.xcode_gs_token
+    }
+
+    pub fn cached_teams(&self) -> &[Team] {
+        &self.teams
     }
 }
 
