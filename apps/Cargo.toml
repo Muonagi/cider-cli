@@ -11,7 +11,6 @@ idevice.workspace = true
 plist.workspace = true
 tokio.workspace = true
 futures.workspace = true
-env_logger.workspace = true
 rustls.workspace = true
 chrono.workspace = true
 uuid.workspace = true
