@@ -1,9 +1,9 @@
-# Impactor
+# Impactor-cli
 
 [![CI](https://github.com/Muonagi/impactor-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Muonagi/impactor-cli/actions/workflows/ci.yml)
 [![Release](https://github.com/Muonagi/impactor-cli/actions/workflows/release.yml/badge.svg)](https://github.com/Muonagi/impactor-cli/actions/workflows/release.yml)
 
-Impactor is a CLI-first iOS signing and sideloading tool for macOS, Linux, and Windows. This repository now ships a single terminal application, `impactor`, instead of a desktop GUI.
+Impactor-cli is a CLI-first iOS signing and sideloading tool for macOS, Linux, and Windows. This repository now ships a single terminal application, `impactor`, instead of a desktop GUI.
 
 ## What It Does
 
