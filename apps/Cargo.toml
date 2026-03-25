@@ -1,0 +1,29 @@
+[package]
+name = "impactor"
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+idevice.workspace = true
+plist.workspace = true
+tokio.workspace = true
+futures.workspace = true
+env_logger.workspace = true
+log.workspace = true
+rustls.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+plume_core = { path = "../crates/plume_core", features = ["tweaks"] }
+plume_utils = { path = "../crates/plume_utils" }
+plume_store = { path = "../crates/plume_store" }
+
+clap = { version = "4.5", features = ["derive"] }
+dialoguer = "0.12.0"
+anyhow = "1.0"
+goblin = "0.9.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plume_gestalt = { path = "../crates/plume_gestalt" }

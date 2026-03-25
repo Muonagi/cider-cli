@@ -1,0 +1,26 @@
+[package]
+name = "plume_utils"
+description = "Utility functions and types for Impactor tools."
+edition.workspace = true
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+idevice.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+plist.workspace = true
+tokio.workspace = true
+futures.workspace = true
+log.workspace = true
+image.workspace = true
+plume_core = { path = "../plume_core", features = ["tweaks"] }
+plume_store = { path = "../plume_store" }
+
+# TODO: replace zip with decompress
+zip = { version = "4.3", default-features = false, features = ["deflate"] }
+decompress = { git = "https://github.com/PlumeImpactor/decompress", rev = "75a3016" }
+goblin = "0.9.3"
+flate2 = "1.1"
