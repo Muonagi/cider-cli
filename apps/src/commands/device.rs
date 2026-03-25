@@ -97,16 +97,35 @@ async fn list_devices() -> Result<()> {
 
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     {
-        println!("mac\tMy Mac\tlocal");
+        println!(
+            "  {} {}",
+            console::style("My Mac").bold(),
+            console::style("local").dim(),
+        );
+        println!("    {}", console::style("mac").dim());
     }
 
     if devices.is_empty() {
-        println!("No connected iOS devices found.");
+        #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+        {
+            crate::ui::status("No connected devices found");
+        }
         return Ok(());
     }
 
-    for device in devices {
-        println!("{}\t{}\t{}", device.udid, device.name, device);
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    println!();
+
+    for (i, device) in devices.iter().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        println!(
+            "  {} {}",
+            console::style(&device.name).bold(),
+            console::style(format!("{}", device)).dim(),
+        );
+        println!("    {}", console::style(&device.udid).dim());
     }
 
     Ok(())
@@ -180,15 +199,18 @@ async fn list_apps(target: DeviceTargetArgs) -> Result<()> {
     let apps = device.installed_apps().await?;
 
     if apps.is_empty() {
-        println!("No supported installed apps found.");
+        crate::ui::status("No supported apps found");
         return Ok(());
     }
 
-    for app in apps {
+    for (i, app) in apps.iter().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        println!("  {}", console::style(format!("{}", app.app)).bold());
         println!(
-            "{}\t{}",
-            app.bundle_id.unwrap_or_else(|| "<unknown>".to_string()),
-            app.app
+            "    {}",
+            console::style(app.bundle_id.as_deref().unwrap_or("<unknown>")).dim(),
         );
     }
 

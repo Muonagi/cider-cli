@@ -28,7 +28,7 @@ pub(super) async fn run_refreshes(args: RefreshRunArgs) -> Result<()> {
     };
 
     if target_udids.is_empty() {
-        println!("No refresh registrations found.");
+        crate::ui::status("No refresh registrations found");
         return Ok(());
     }
 

@@ -255,16 +255,18 @@ async fn certificates(args: CertificatesArgs) -> Result<()> {
         println!(
             "  {} {}",
             console::style(&cert.name).bold(),
-            console::style(format!("({})", type_name)).dim(),
+            console::style(type_name).dim(),
         );
         println!(
-            "    Serial: {} · Status: {} · Expires: {}",
-            cert.serial_number,
+            "    {} {} {} {} {}",
+            console::style(&cert.serial_number).dim(),
+            console::style("·").dim(),
             status_style,
-            cert.expiration_date.to_xml_format(),
+            console::style("·").dim(),
+            console::style(cert.expiration_date.to_xml_format()).dim(),
         );
         if let Some(machine) = &cert.machine_name {
-            println!("    Machine: {}", machine);
+            println!("    {}", console::style(machine).dim());
         }
     }
 
@@ -291,11 +293,13 @@ async fn devices(args: DevicesArgs) -> Result<()> {
         println!(
             "  {} {}",
             console::style(&device.name).bold(),
-            console::style(format!("({})", device.device_class)).dim(),
+            console::style(&device.device_class).dim(),
         );
         println!(
-            "    UDID: {} · Status: {}",
-            device.device_number, device.status,
+            "    {} {} {}",
+            console::style(&device.device_number).dim(),
+            console::style("·").dim(),
+            device.status,
         );
     }
 
@@ -340,9 +344,9 @@ async fn app_ids(args: AppIdsArgs) -> Result<()> {
         println!(
             "  {} {}",
             console::style(&app.attributes.name).bold(),
-            console::style(format!("({})", app.id)).dim(),
+            console::style(&app.id).dim(),
         );
-        println!("    Bundle: {}", app.attributes.identifier);
+        println!("    {}", console::style(&app.attributes.identifier).dim());
     }
 
     Ok(())
@@ -370,18 +374,22 @@ async fn list_accounts() -> Result<()> {
             console::style("○").dim().to_string()
         };
 
-        let team = if account.team_id().is_empty() {
-            "<auto>"
+        let team_display = if account.team_id().is_empty() {
+            String::new()
         } else {
-            account.team_id()
+            format!(
+                " {} {}",
+                console::style("·").dim(),
+                console::style(account.team_id()).dim()
+            )
         };
 
         println!(
-            "  {} {} ({}) team={}",
+            "  {} {} {}{}",
             marker,
             email,
-            account.first_name(),
-            team
+            console::style(account.first_name()).dim(),
+            team_display,
         );
     }
 

@@ -70,25 +70,34 @@ async fn list_refreshes() -> Result<()> {
     let store = load_account_store().await?;
 
     if store.refreshes().is_empty() {
-        println!("No refresh registrations found.");
+        crate::ui::status("No refresh registrations found");
         return Ok(());
     }
 
-    for refresh_device in store.refreshes().values() {
+    for (i, refresh_device) in store.refreshes().values().enumerate() {
+        if i > 0 {
+            println!();
+        }
+        let mode = if refresh_device.is_mac { "mac" } else { "ios" };
         println!(
-            "{}\t{}\taccount={}\tmode={}",
-            refresh_device.udid,
-            refresh_device.name,
-            refresh_device.account,
-            if refresh_device.is_mac { "mac" } else { "ios" }
+            "  {} {}",
+            console::style(&refresh_device.name).bold(),
+            console::style(format!("{} · {}", mode, refresh_device.account)).dim(),
         );
+        println!("    {}", console::style(&refresh_device.udid).dim());
 
         for app in &refresh_device.apps {
             println!(
-                "  - {}\t{}\tdue={}",
+                "    {} {}",
+                console::style("›").cyan(),
                 app.bundle_id.as_deref().unwrap_or("<unknown>"),
-                app.path.display(),
-                app.scheduled_refresh
+            );
+            println!(
+                "      {} {} {} {}",
+                console::style(app.path.display()).dim(),
+                console::style("·").dim(),
+                console::style("due").dim(),
+                app.scheduled_refresh,
             );
         }
     }

@@ -10,10 +10,10 @@ members = [
 
 [workspace.package]
 edition = "2024"
-version = "2.1.2"
-authors = ["CLARATION <s03781614@icloud.com>"]
+version = "0.1.1"
+authors = ["Muonagi"]
 license = "MIT"
-repository = "https://github.com/khcrysalis/plumestore"
+repository = "https://github.com/Muonagi/impactor-cli"
 
 # We use `opt-level = "s"` as it significantly reduces binary size.
 # We could then use the `#[optimize(speed)]` attribute for spot optimizations.
