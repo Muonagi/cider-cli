@@ -130,7 +130,7 @@ pub async fn select_device(device_udid: Option<String>) -> Result<Device> {
 
     let device_names: Vec<String> = devices
         .iter()
-        .map(|device| format!("{} ({})", device.name, device.udid))
+        .map(|device| format!("{} ({})", device, device.udid))
         .collect();
 
     let selection = Select::new()

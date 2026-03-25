@@ -11,10 +11,6 @@ use commands::{Cli, Commands};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(
-        "error,impactor=warn,plume_core=warn,plume_utils=warn,plume_store=warn",
-    ))
-    .init();
     let _ = rustls::crypto::ring::default_provider().install_default();
     let cli = Cli::parse();
 
