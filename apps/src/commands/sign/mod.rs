@@ -9,11 +9,11 @@ use clap::Args;
 use plume_core::MobileProvision;
 use plume_utils::{SignerInstallMode, SignerMode};
 
-use crate::commands::{
-    device::{DeviceTargetArgs, select_target},
-};
+use crate::commands::device::{DeviceTargetArgs, select_target};
 
-use install::{install_signed_bundle, load_store, maybe_install_pairing, save_refresh_registration};
+use install::{
+    install_signed_bundle, load_store, maybe_install_pairing, save_refresh_registration,
+};
 use signer::{
     build_signer, build_signer_options, load_input, resolve_post_sign_action, resolve_sign_mode,
 };

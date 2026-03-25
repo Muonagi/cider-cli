@@ -4,9 +4,7 @@ use anyhow::{Result, anyhow};
 use dialoguer::{Input, Select};
 
 use plume_core::CertificateIdentity;
-use plume_utils::{
-    Bundle, Package, PlistInfoTrait, Signer, SignerApp, SignerMode, SignerOptions,
-};
+use plume_utils::{Bundle, Package, PlistInfoTrait, Signer, SignerApp, SignerMode, SignerOptions};
 
 use crate::{
     commands::session::{create_session, get_selected_account, resolve_team_id},
@@ -15,7 +13,10 @@ use crate::{
 
 use super::SignArgs;
 
-pub(super) fn build_signer_options(args: &SignArgs, input_is_bundle: bool) -> Result<SignerOptions> {
+pub(super) fn build_signer_options(
+    args: &SignArgs,
+    input_is_bundle: bool,
+) -> Result<SignerOptions> {
     let mut options = if input_is_bundle {
         let bundle = Bundle::new(&args.package)?;
         SignerOptions::new_for_app(SignerApp::from_bundle_identifier_or_name(
