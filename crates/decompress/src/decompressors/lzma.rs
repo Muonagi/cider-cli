@@ -32,19 +32,17 @@ impl Decompressor for Lzma {
         archive
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
-            .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
+            .is_some_and(|f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
     fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
         Ok(Listing {
             id: "lzma",
-            entries: vec![
-                archive
-                    .file_stem()
-                    .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
-                    .to_string_lossy()
-                    .to_string(),
-            ],
+            entries: vec![archive
+                .file_stem()
+                .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
+                .to_string_lossy()
+                .to_string()],
         })
     }
 

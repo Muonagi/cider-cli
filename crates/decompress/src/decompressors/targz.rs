@@ -46,7 +46,7 @@ impl Decompressor for Targz {
         archive
             .file_name()
             .and_then(std::ffi::OsStr::to_str)
-            .map_or(false, |f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
+            .is_some_and(|f| self.re.as_ref().unwrap_or(&*RE).is_match(f))
     }
 
     fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {

@@ -41,7 +41,7 @@ fn test_archives(
     #[case] strip: usize,
     #[case] id: &str,
 ) {
-    vec!["bare_zip_1", "bare_tgz_1", "bare_txz_1"]
+    ["bare_zip_1", "bare_tgz_1", "bare_txz_1"]
         .iter()
         .map(|p| format!("tests/expected/{p}"))
         .for_each(|p| {
