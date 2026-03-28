@@ -17,6 +17,23 @@ cider device trust
 cider sign MyApp.ipa --apple-id --install
 ```
 
+## Installation
+
+### Homebrew
+
+```sh
+brew tap Muonagi/cider-cli https://github.com/Muonagi/cider-cli
+brew install cider
+```
+
+### Shell Script
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Muonagi/cider-cli/main/install.sh | sh
+```
+
+### From Source
+
 Requires [Rust](https://rustup.rs/) and [CMake](https://cmake.org/download/). See [Getting Started](docs/getting-started.md) for platform-specific prerequisites.
 
 ## Features
