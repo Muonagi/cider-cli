@@ -1,5 +1,5 @@
 [package]
-name = "impactor"
+name = "cider"
 edition.workspace = true
 version.workspace = true
 authors.workspace = true

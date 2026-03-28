@@ -1,6 +1,6 @@
 # Contributing
 
-Impactor is a CLI sideloading tool meant to work on stock systems. To keep compatibility and maintainability high, there are a few project-specific rules in place.
+Cider is a CLI sideloading tool meant to work on stock systems. To keep compatibility and maintainability high, there are a few project-specific rules in place.
 
 ## Rules
 
@@ -8,17 +8,17 @@ Impactor is a CLI sideloading tool meant to work on stock systems. To keep compa
 - **No contributions related to retrieving any signing certificates owned by companies**.
 - **Modifying any hardcoded links should be discussed before changing**.
 - **If you're planning on making a large contribution, please open an issue in the repository you're contributing to beforehand**.
-- **Your contributions should be licensed appropriately**. 
+- **Your contributions should be licensed appropriately**.
 - **Typo contributions are okay**, just make sure they are appropriate.
 - **Code cleaning contributions are okay**.
 
-## Contributing to Impactor
+## Contributing to Cider
 
 The project is split into a small CLI app plus shared crates.
 
 | Module                 | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `apps`                 | The `impactor` CLI application, built with `clap` and interactive terminal prompts.                                          |
+| `apps`                 | The `cider` CLI application, built with `clap` and interactive terminal prompts.                                             |
 | `crates/plume_core`    | Apple developer authentication, provisioning, certificates, Mach-O helpers, and signing integration.                         |
 | `crates/plume_gestalt` | Wrapper for `libMobileGestalt.dylib`, used for obtaining your Mac's UDID for Apple Silicon sideloading.                       |
 | `crates/plume_utils`   | Shared bundle, package, device, signing, tweak, and install helpers.                                                         |
@@ -34,10 +34,10 @@ You need:
 
 ```sh
 # Show CLI help
-cargo run -p impactor -- --help
+cargo run -p cider -- --help
 
 # Run the test suite for the CLI
-cargo test -p impactor
+cargo test -p cider
 
 # Build the full workspace
 cargo build --workspace

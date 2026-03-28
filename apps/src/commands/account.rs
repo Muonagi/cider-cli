@@ -358,7 +358,7 @@ async fn list_accounts() -> Result<()> {
     let accounts = settings.accounts();
 
     if accounts.is_empty() {
-        crate::ui::status("No accounts found. Use 'impactor account login' to add an account.");
+        crate::ui::status("No accounts found. Use 'cider account login' to add an account.");
         return Ok(());
     }
 
@@ -401,7 +401,7 @@ async fn switch_account(args: SwitchArgs) -> Result<()> {
 
     if settings.get_account(&args.email).is_none() {
         return Err(anyhow!(
-            "Account '{}' not found. Use 'impactor account list' to see available accounts.",
+            "Account '{}' not found. Use 'cider account list' to see available accounts.",
             args.email
         ));
     }

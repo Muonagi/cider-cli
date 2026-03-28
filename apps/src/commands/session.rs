@@ -31,16 +31,14 @@ pub async fn load_account_store() -> Result<AccountStore> {
 pub async fn get_selected_account() -> Result<GsaAccount> {
     let settings = load_account_store().await?;
     settings.selected_account().cloned().ok_or_else(|| {
-        anyhow!("No account selected. Please login first using 'impactor account login'")
+        anyhow!("No account selected. Please login first using 'cider account login'")
     })
 }
 
 pub async fn get_account_by_email(email: &str) -> Result<GsaAccount> {
     let settings = load_account_store().await?;
     settings.get_account(email).cloned().ok_or_else(|| {
-        anyhow!(
-            "Account '{email}' not found. Use 'impactor account list' to see available accounts."
-        )
+        anyhow!("Account '{email}' not found. Use 'cider account list' to see available accounts.")
     })
 }
 

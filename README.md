@@ -1,117 +1,56 @@
-# Impactor-cli
+# Cider
 
-[![CI](https://github.com/Muonagi/impactor-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Muonagi/impactor-cli/actions/workflows/ci.yml)
-[![Release](https://github.com/Muonagi/impactor-cli/actions/workflows/release.yml/badge.svg)](https://github.com/Muonagi/impactor-cli/actions/workflows/release.yml)
+[![CI](https://github.com/Muonagi/cider-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/Muonagi/cider-cli/actions/workflows/ci.yml)
+[![Release](https://github.com/Muonagi/cider-cli/actions/workflows/release.yml/badge.svg)](https://github.com/Muonagi/cider-cli/actions/workflows/release.yml)
 
-Impactor-cli is a CLI-first iOS signing and sideloading tool for macOS, Linux, and Windows. This repository now ships a single terminal application, `impactor`, instead of a desktop GUI.
-
-## What It Does
-
-- Sign and install `.ipa` and `.app` bundles.
-- Use Apple ID signing, ad-hoc signing, or a no-modify install/export flow.
-- Customize app metadata, entitlements, icons, and compatibility flags.
-- Inject tweaks and extra bundles.
-- Manage saved Apple Developer accounts and team selection.
-- Export `.p12` certificates for tools like SideStore and LiveContainer.
-- Pair devices, inspect installed supported apps, and install pairing files.
-- Save signed apps for explicit refresh workflows and run refreshes from the CLI.
-- Inspect and patch Mach-O binaries.
+A CLI tool for signing and sideloading iOS apps on macOS, Linux, and Windows.
 
 ## Quick Start
 
-Build the CLI:
-
 ```sh
-cargo build -p impactor
+# Build
+cargo build -p cider
+
+# Login, trust a device, sign and install
+cider account login
+cider device trust
+cider sign MyApp.ipa --apple-id --install
 ```
 
-See the command surface:
+Requires [Rust](https://rustup.rs/) and [CMake](https://cmake.org/download/). See [Getting Started](docs/getting-started.md) for platform-specific prerequisites.
 
-```sh
-impactor --help
-```
+## Features
 
-Common flows:
+- Sign and install `.ipa` and `.app` bundles using Apple ID, ad-hoc, or explicit PEM certificates.
+- Customize bundle metadata, entitlements, icons, and compatibility flags.
+- Inject tweaks (`.deb`, `.dylib`) and extra bundles (`.framework`, `.appex`).
+- Manage Apple Developer accounts, teams, and certificates.
+- Pair devices, push pairing files, and install apps directly.
+- Save signed apps for scheduled refresh before provisioning profiles expire.
+- Inspect and patch Mach-O binaries.
 
-```sh
-# Login and persist your Apple account
-impactor account login
+## Commands
 
-# Select the active team for the selected account
-impactor account team
+| Command | Description |
+|---------|-------------|
+| `cider sign` | Sign an app, install it, or export a re-signed IPA |
+| `cider account` | Manage Apple Developer accounts and teams |
+| `cider device` | List devices, pair, install apps, push pairing files |
+| `cider refresh` | Manage saved refresh registrations |
+| `cider inspect` | Inspect and patch Mach-O binaries |
 
-# Sign and install an IPA with Apple ID signing
-impactor sign MyApp.ipa --apple-id --install
+Run any command with `--help` for usage details, or see the full [Command Reference](docs/commands/).
 
-# Sign ad-hoc and export a new IPA
-impactor sign MyApp.ipa --adhoc --output MyApp-signed.ipa
+## Documentation
 
-# Pair a device and inspect supported installed apps
-impactor device trust
-impactor device apps
+Full documentation is in the [`docs/`](docs/) directory:
 
-# Manage saved refresh registrations
-impactor refresh list
-impactor refresh run
-
-# Inspect Mach-O metadata
-impactor inspect MyBinary --entitlements
-```
-
-## Command Overview
-
-- `impactor sign`
-  Sign an app, install it, export a new IPA, or save it for later refresh.
-- `impactor account`
-  Login, switch accounts, pick teams, inspect developer data, and export certificates.
-- `impactor device`
-  List devices, trust a device, install an app, list supported apps, and install pairing files.
-- `impactor refresh`
-  List saved refresh entries, run refresh manually, or remove saved refresh registrations.
-- `impactor inspect`
-  Inspect entitlements or patch Mach-O load commands and SDK versions.
-
-## Platform Notes
-
-- Linux:
-  `usbmuxd` must be installed and running for device communication.
-- Windows:
-  Apple device drivers from iTunes or Apple Devices are typically required.
-- macOS:
-  Xcode or Command Line Tools are recommended for building from source.
-
-## Building
-
-Requirements:
-
-- [Rust](https://rustup.rs/)
-- [CMake](https://cmake.org/download/)
-
-Useful commands:
-
-```sh
-# Build the CLI
-cargo build -p impactor
-
-# Run the CLI
-impactor --help
-
-# Build a distributable binary into ./dist
-make dist
-```
-
-## How It Works
-
-Impactor follows the same broad path as Xcode-based sideloading:
-
-1. Authenticate with Apple Developer services.
-2. Register the target device when needed.
-3. Create or reuse a signing identity.
-4. Register the app ID and request provisioning profiles.
-5. Apply requested bundle modifications.
-6. Sign the app and install or export it.
-
-Without a paid developer account, Apple still imposes the normal free-account limits.
+- [Getting Started](docs/getting-started.md) — installation, first steps, common workflows
+- [Command Reference](docs/commands/) — every command, subcommand, and flag
+- [How Signing Works](docs/signing.md) — the signing pipeline explained
+- [Configuration & Storage](docs/configuration.md) — where data lives on disk
+- [Architecture](docs/architecture.md) — crate structure and dependency graph
+- [Platform Notes](docs/platform-notes.md) — macOS, Linux, and Windows specifics
 
 ## Credits
 

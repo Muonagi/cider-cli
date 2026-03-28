@@ -1,6 +1,6 @@
 [package]
 name = "plume_store"
-description = "Data storage layer for Plume Impactor tools."
+description = "Data storage layer for Cider tools."
 edition.workspace = true
 version.workspace = true
 authors.workspace = true

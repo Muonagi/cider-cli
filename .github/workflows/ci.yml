@@ -126,13 +126,13 @@ jobs:
           sudo apt-get install -y cmake g++ libusb-1.0-0-dev
 
       - name: Build release
-        run: cargo build -p impactor --release --target ${{ matrix.target }}
+        run: cargo build -p cider --release --target ${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: impactor-${{ matrix.target }}
+          name: cider-${{ matrix.target }}
           path: |
-            target/${{ matrix.target }}/release/impactor
-            target/${{ matrix.target }}/release/impactor.exe
+            target/${{ matrix.target }}/release/cider
+            target/${{ matrix.target }}/release/cider.exe
           if-no-files-found: error

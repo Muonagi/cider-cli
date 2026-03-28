@@ -1,5 +1,5 @@
 PROFILE ?= debug
-BIN_NAME := impactor
+BIN_NAME := cider
 
 ifeq ($(PROFILE),release)
 CARGO_PROFILE := --release

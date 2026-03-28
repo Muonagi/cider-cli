@@ -1,6 +1,6 @@
 [package]
 name = "plume_utils"
-description = "Utility functions and types for Impactor tools."
+description = "Utility functions and types for Cider tools."
 edition.workspace = true
 version.workspace = true
 authors.workspace = true

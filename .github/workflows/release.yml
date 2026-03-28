@@ -17,16 +17,17 @@ jobs:
         include:
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact: impactor
+            artifact: cider
           - os: macos-15
             target: x86_64-apple-darwin
-            artifact: impactor
+            artifact: cider
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact: impactor
+            artifact: cider
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: impactor.exe
+            artifact: cider.exe
+
     steps:
       - uses: actions/checkout@v4
 
@@ -44,25 +45,25 @@ jobs:
           sudo apt-get install -y cmake g++ libusb-1.0-0-dev
 
       - name: Build release
-        run: cargo build -p impactor --release --target ${{ matrix.target }}
+        run: cargo build -p cider --release --target ${{ matrix.target }}
 
       - name: Package artifact
         shell: bash
         run: |
           cd target/${{ matrix.target }}/release
           if [ "${{ runner.os }}" = "Windows" ]; then
-            7z a ../../../impactor-${{ matrix.target }}.zip ${{ matrix.artifact }}
+            7z a ../../../cider-${{ matrix.target }}.zip ${{ matrix.artifact }}
           else
-            tar czf ../../../impactor-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+            tar czf ../../../cider-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: impactor-${{ matrix.target }}
+          name: cider-${{ matrix.target }}
           path: |
-            impactor-${{ matrix.target }}.tar.gz
-            impactor-${{ matrix.target }}.zip
+            cider-${{ matrix.target }}.tar.gz
+            cider-${{ matrix.target }}.zip
           if-no-files-found: error
 
   release:

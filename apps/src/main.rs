@@ -40,7 +40,7 @@ pub fn get_data_path() -> PathBuf {
 }
 
 fn resolve_data_path(base: &Path) -> PathBuf {
-    let preferred = base.join("Impactor");
+    let preferred = base.join("Cider");
     let legacy = base.join("PlumeImpactor");
 
     if preferred.exists() || !legacy.exists() {

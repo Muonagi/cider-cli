@@ -9,7 +9,7 @@ pub mod sign;
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "impactor",
+    name = "cider",
     author,
     version,
     about = "Interactive CLI for iOS signing, install, accounts, and refresh",

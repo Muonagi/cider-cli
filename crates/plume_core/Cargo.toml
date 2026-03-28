@@ -1,6 +1,6 @@
 [package]
 name = "plume_core"
-description = "Core library for Impactor tools."
+description = "Core library for Cider tools."
 edition.workspace = true
 version.workspace = true
 authors.workspace = true

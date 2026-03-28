@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Impactor is a CLI tool for signing and sideloading iOS apps, written in Rust (2024 edition). It handles Apple Developer authentication, certificate/provisioning profile management, code signing, and on-device installation. Targets macOS, Linux, and Windows.
+Cider is a CLI tool for signing and sideloading iOS apps, written in Rust (2024 edition). It handles Apple Developer authentication, certificate/provisioning profile management, code signing, and on-device installation. Targets macOS, Linux, and Windows.
 
 ## Workspace Structure
 
 Cargo workspace with 5 crates:
 
 ```
-apps/                          # CLI binary ("impactor") — clap + dialoguer
+apps/                          # CLI binary ("cider") — clap + dialoguer
   src/commands/
     sign/                      # Sign + install workflows
     refresh/                   # Refresh registration flows
@@ -26,7 +26,7 @@ crates/
     src/utils/                 # Certificates, Mach-O parsing, provisioning profiles
   plume_utils/                 # Higher-level helpers
     src/                       # Bundle, package, device, signer, tweak, install
-  plume_store/                 # Persistence layer (~/.config/Impactor/ or %APPDATA%)
+  plume_store/                 # Persistence layer (~/.config/Cider/ or %APPDATA%)
     src/                       # Account storage, refresh tokens, key-value store
   plume_gestalt/               # macOS-only: MobileGestalt wrapper (Mac UDID retrieval)
 ```
@@ -38,8 +38,8 @@ crates/
 ## Build & Run
 
 ```sh
-cargo build -p impactor                # Debug build
-PROFILE=release make dist              # Release build → dist/impactor
+cargo build -p cider                   # Debug build
+PROFILE=release make dist              # Release build → dist/cider
 make clean                             # Remove dist/ and target/
 ```
 
@@ -48,11 +48,11 @@ Requires: Rust (via rustup), CMake, C++ compiler.
 ## CLI Commands
 
 ```
-impactor sign       # Sign an iOS app bundle
-impactor account    # Manage Apple Developer account auth
-impactor device     # Device management
-impactor refresh    # Manage refresh registrations
-impactor inspect    # Inspect Mach-O binaries
+cider sign       # Sign an iOS app bundle
+cider account    # Manage Apple Developer account auth
+cider device     # Device management
+cider refresh    # Manage refresh registrations
+cider inspect    # Inspect Mach-O binaries
 ```
 
 ## Custom Forks

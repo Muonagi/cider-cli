@@ -13,19 +13,16 @@ edition = "2024"
 version = "0.1.1"
 authors = ["Muonagi"]
 license = "MIT"
-repository = "https://github.com/Muonagi/impactor-cli"
+repository = "https://github.com/Muonagi/cider-cli"
 
-# We use `opt-level = "s"` as it significantly reduces binary size.
-# We could then use the `#[optimize(speed)]` attribute for spot optimizations.
-# Unfortunately, that attribute currently doesn't work on intrinsics such as memset.
 [profile.release]
-codegen-units = 1           # reduces binary size by ~2%
+codegen-units = 1           # maximizes optimization opportunities across the entire crate
 debug = "full"              # No one needs an undebuggable release binary
-lto = true                  # reduces binary size by ~14%
-opt-level = "s"             # reduces binary size by ~25%
-panic = "abort"             # reduces binary size by ~50% in combination with -Zbuild-std-features=panic_immediate_abort
+lto = "fat"                 # full cross-crate LTO for maximum inlining and optimization
+opt-level = 3               # maximum runtime performance
+panic = "abort"             # smaller code, no unwind overhead
 split-debuginfo = "packed"  # generates a separate *.dwp/*.dSYM so the binary can get stripped
-strip = "symbols"           # See split-debuginfo - allows us to drop the size by ~65%
+strip = "symbols"           # See split-debuginfo
 incremental = true          # Improves re-compile times
 
 [workspace.dependencies]
