@@ -38,11 +38,13 @@ impl Decompressor for Lzma {
     fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
         Ok(Listing {
             id: "lzma",
-            entries: vec![archive
-                .file_stem()
-                .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
-                .to_string_lossy()
-                .to_string()],
+            entries: vec![
+                archive
+                    .file_stem()
+                    .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
+                    .to_string_lossy()
+                    .to_string(),
+            ],
         })
     }
 

@@ -60,10 +60,10 @@ impl AnisetteData {
                         temp.split('<').nth(3).unwrap().split('>').nth(0).unwrap(),
                         "com.apple.AuthKit/1 (com.apple.dt.Xcode/3594.4.19)",
                     )
-                }
+                },
                 None => {
                     return headers;
-                }
+                },
             };
             headers.insert("X-Mme-Client-Info".to_owned(), client_info.to_owned());
         }

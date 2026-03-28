@@ -151,7 +151,7 @@ impl<'a> MachOExt for MachOBinary<'a> {
                 let path = match &load_cmd.command {
                     CommandVariant::LoadDylib(dylib) => {
                         extract_dylib_path(self.data, load_cmd.offset, dylib.dylib.name)
-                    }
+                    },
                     _ => manually_parse_dylib(self.data, load_cmd.offset),
                 };
                 if let Some(p) = path {
@@ -224,10 +224,10 @@ impl<'a> MachOExt for MachOBinary<'a> {
             .filter_map(|load_cmd| match &load_cmd.command {
                 CommandVariant::Segment64(seg) if seg.filesize > 0 && seg.fileoff > 0 => {
                     Some(seg.fileoff)
-                }
+                },
                 CommandVariant::Segment32(seg) if seg.filesize > 0 && seg.fileoff > 0 => {
                     Some(seg.fileoff as u64)
-                }
+                },
                 _ => None,
             })
             .min()
@@ -304,7 +304,7 @@ impl<'a> MachOExt for MachOBinary<'a> {
                 match &load_cmd.command {
                     CommandVariant::LoadDylib(dylib) => {
                         extract_dylib_path(self.data, load_cmd.offset, dylib.dylib.name)
-                    }
+                    },
                     _ => manually_parse_dylib(self.data, load_cmd.offset),
                 }
                 .and_then(|name| {
@@ -379,7 +379,7 @@ impl<'a> MachOExt for MachOBinary<'a> {
                                 base_offset + load_cmd.offset,
                                 dylib.dylib.name,
                             )
-                        }
+                        },
                         _ => manually_parse_dylib(&self.data, base_offset + load_cmd.offset),
                     }?;
 

@@ -38,11 +38,13 @@ impl Decompressor for Zstd {
     fn list(&self, archive: &Path) -> Result<Listing, DecompressError> {
         Ok(Listing {
             id: "zst",
-            entries: vec![archive
-                .file_stem()
-                .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
-                .to_string_lossy()
-                .to_string()],
+            entries: vec![
+                archive
+                    .file_stem()
+                    .ok_or_else(|| DecompressError::Error("cannot compose a file name".into()))?
+                    .to_string_lossy()
+                    .to_string(),
+            ],
         })
     }
 

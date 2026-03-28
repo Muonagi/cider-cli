@@ -121,12 +121,12 @@ impl Signer {
                                 )
                                 .await?;
                             }
-                        }
+                        },
                         SignerApp::SideStore | SignerApp::AltStore => {
                             bundle.set_info_plist_key(id_key, &**serial_number)?;
                             fs::write(bundle.bundle_dir().join(cert_file_name), p12_data).await?;
-                        }
-                        _ => {}
+                        },
+                        _ => {},
                     }
                 }
             }

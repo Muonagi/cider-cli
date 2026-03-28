@@ -187,12 +187,12 @@ pub async fn execute(args: SignArgs) -> Result<()> {
                 "Signed bundle in place at {}",
                 bundle.bundle_dir().display()
             ));
-        }
+        },
         PostSignAction::Install => {
             let device = device.ok_or_else(|| anyhow!("No device selected for install"))?;
             install_signed_bundle(&bundle, &device).await?;
             maybe_install_pairing(&bundle, &signer.options, &device).await?;
-        }
+        },
         PostSignAction::Export(output) => {
             let package = package
                 .as_ref()
@@ -200,7 +200,7 @@ pub async fn execute(args: SignArgs) -> Result<()> {
             let archived_path = package.get_archive_based_on_path(&args.package)?;
             tokio::fs::copy(&archived_path, &output).await?;
             crate::ui::success(format!("Saved signed package to {}", output.display()));
-        }
+        },
     }
 
     if let Some(pkg) = package {

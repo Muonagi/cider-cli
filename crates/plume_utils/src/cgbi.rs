@@ -103,7 +103,7 @@ fn parse_chunks(data: &[u8]) -> Option<(ImageHeader, Vec<u8>)> {
         let body = &data[pos + 8..end];
 
         match name {
-            b"CgBI" => { /* who care */ }
+            b"CgBI" => { /* who care */ },
             b"IHDR" if body.len() >= 13 => {
                 width = u32::from_be_bytes(body[0..4].try_into().ok()?);
                 height = u32::from_be_bytes(body[4..8].try_into().ok()?);
@@ -111,12 +111,12 @@ fn parse_chunks(data: &[u8]) -> Option<(ImageHeader, Vec<u8>)> {
                 color_type = body[9];
                 ihdr_data = body.to_vec();
                 ancillary.push((name.to_vec(), body.to_vec()));
-            }
+            },
             b"IDAT" => raw_idat.extend_from_slice(body),
             b"IEND" => {
                 ancillary.push((name.to_vec(), body.to_vec()));
                 break;
-            }
+            },
             _ => ancillary.push((name.to_vec(), body.to_vec())),
         }
 
@@ -170,7 +170,7 @@ fn unfilter_and_fix_pixels(
                     pixels.push((g as f32 * inv).round().min(255.0) as u8);
                     pixels.push((b as f32 * inv).round().min(255.0) as u8);
                     pixels.push(a);
-                }
+                },
             }
         }
 
@@ -221,18 +221,18 @@ fn apply_filter(filter: u8, raw: &[u8], prev: &[u8], bpp: usize) -> Vec<u8> {
                 let a = if i >= bpp { row[i - bpp] } else { 0 };
                 row[i] = raw[i].wrapping_add(a);
             }
-        }
+        },
         2 => {
             for i in 0..raw.len() {
                 row[i] = raw[i].wrapping_add(prev[i]);
             }
-        }
+        },
         3 => {
             for i in 0..raw.len() {
                 let a = if i >= bpp { row[i - bpp] } else { 0 };
                 row[i] = raw[i].wrapping_add(((a as u16 + prev[i] as u16) / 2) as u8);
             }
-        }
+        },
         4 => {
             for i in 0..raw.len() {
                 let a = if i >= bpp { row[i - bpp] } else { 0 };
@@ -240,7 +240,7 @@ fn apply_filter(filter: u8, raw: &[u8], prev: &[u8], bpp: usize) -> Vec<u8> {
                 let c = if i >= bpp { prev[i - bpp] } else { 0 };
                 row[i] = raw[i].wrapping_add(paeth(a, b, c));
             }
-        }
+        },
         _ => row.copy_from_slice(raw),
     }
     row

@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use decompress::{decompressors, Decompress, DecompressError, Decompression, ExtractOptsBuilder};
+use decompress::{Decompress, DecompressError, Decompression, ExtractOptsBuilder, decompressors};
 use dircmp::Comparison;
 use insta::assert_debug_snapshot;
 use regex::Regex;
@@ -100,7 +100,7 @@ fn test_custom() {
     });
 
     match res {
-        Err(DecompressError::MissingCompressor) => {}
+        Err(DecompressError::MissingCompressor) => {},
         _ => panic!("should have not decompressed"),
     }
 }

@@ -1,7 +1,7 @@
 #![allow(clippy::cognitive_complexity)]
 
 use clap::{arg, command};
-use decompress::{decompressors, ExtractOptsBuilder};
+use decompress::{ExtractOptsBuilder, decompressors};
 use regex::Regex;
 
 fn main() {

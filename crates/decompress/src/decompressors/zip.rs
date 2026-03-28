@@ -9,8 +9,8 @@ use regex::Regex;
 use zip::ZipArchive;
 
 use crate::{
-    decompressors::utils::normalize_mode, DecompressError, Decompression, Decompressor,
-    ExtractOpts, Listing,
+    DecompressError, Decompression, Decompressor, ExtractOpts, Listing,
+    decompressors::utils::normalize_mode,
 };
 
 lazy_static! {

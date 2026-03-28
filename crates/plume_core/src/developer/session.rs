@@ -163,7 +163,7 @@ impl DeveloperSession {
             Some(RequestType::Patch) => self.client.patch(url).headers(headers.clone()),
             Some(RequestType::Post) | _ if body.is_some() => {
                 self.client.post(url).headers(headers.clone())
-            }
+            },
             _ => self.client.get(url).headers(headers.clone()),
         };
 

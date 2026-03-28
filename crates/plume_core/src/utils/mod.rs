@@ -27,18 +27,18 @@ pub fn merge_entitlements(
                     if s.contains('*') {
                         *s = s.replace('*', new_app_id);
                     }
-                }
+                },
                 Value::Array(arr) => {
                     for item in arr.iter_mut() {
                         replace_wildcard(item, new_app_id);
                     }
-                }
+                },
                 Value::Dictionary(dict) => {
                     for v in dict.values_mut() {
                         replace_wildcard(v, new_app_id);
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
         for value in base.values_mut() {

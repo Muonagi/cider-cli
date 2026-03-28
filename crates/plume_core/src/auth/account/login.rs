@@ -76,7 +76,7 @@ impl Account {
                             Error::AuthSrpWithMessage(0, format!("Failed to get 2FA code: {}", e))
                         })?)
                         .await?
-                }
+                },
                 LoginState::NeedsSMS2FA => response = _self.send_sms_2fa_to_devices(1).await?,
                 LoginState::NeedsSMS2FAVerification(body) => {
                     response = _self
@@ -90,10 +90,10 @@ impl Account {
                             body,
                         )
                         .await?
-                }
+                },
                 LoginState::NeedsLogin => {
                     response = _self.login_email_pass(&username, &password).await?
-                }
+                },
                 LoginState::LoggedIn => return Ok(_self),
                 LoginState::NeedsExtraStep(step) => {
                     if _self.get_pet().is_some() {
@@ -101,7 +101,7 @@ impl Account {
                     } else {
                         return Err(Error::ExtraStep(step));
                     }
-                }
+                },
             }
         }
     }

@@ -214,17 +214,17 @@ impl CertificateIdentity {
             match pem.tag() {
                 "CERTIFICATE" => {
                     self.cert = Some(CapturedX509Certificate::from_der(pem.contents())?);
-                }
+                },
                 "PRIVATE KEY" => {
                     self.key = Some(Box::new(InMemoryPrivateKey::from_pkcs8_der(
                         pem.contents(),
                     )?));
-                }
+                },
                 "RSA PRIVATE KEY" => {
                     self.key = Some(Box::new(InMemoryPrivateKey::from_pkcs1_der(
                         pem.contents(),
                     )?));
-                }
+                },
                 tag => log::debug!("(unhandled PEM tag {}; ignoring)", tag),
             }
         }
@@ -328,7 +328,7 @@ impl CertificateIdentity {
                     }
 
                     return Err(e);
-                }
+                },
             }
         }
         .cert_request;

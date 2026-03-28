@@ -86,4 +86,4 @@ When updating these, always pin to a specific `rev` in Cargo.toml.
 - **Release profile**: optimized for binary size — LTO, `panic=abort`, `strip=symbols`, `opt-level="s"`, split debuginfo.
 - **Error handling**: `thiserror` for library crates, `anyhow` in the CLI app.
 - **Async runtime**: tokio (full features).
-- **Formatting**: default `rustfmt` settings (empty `rustfmt.toml`).
+- **Formatting**: `rustfmt.toml` with 2024 style edition, 100-char max width, Unix line endings, trailing commas on match block arms, field init shorthand.

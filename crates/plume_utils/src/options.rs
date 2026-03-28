@@ -57,8 +57,8 @@ impl SignerOptions {
         match app {
             SignerApp::LiveContainer | SignerApp::LiveContainerAndSideStore => {
                 settings.embedding.single_profile = true;
-            }
-            _ => {}
+            },
+            _ => {},
         }
 
         settings
@@ -274,7 +274,7 @@ impl SignerApp {
             SideStore => Some("/Documents/ALTPairingFile.mobiledevicepairing"),
             LiveContainerAndSideStore | LiveContainer => {
                 Some("/Documents/SideStore/Documents/ALTPairingFile.mobiledevicepairing")
-            }
+            },
             ByeTunes => Some("/Documents/pairing file/pairingFile.plist"),
             _ => None,
         }

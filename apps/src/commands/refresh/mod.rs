@@ -117,7 +117,7 @@ async fn remove_refresh(args: RefreshRemoveArgs) -> Result<()> {
                 .into_iter()
                 .next()
                 .ok_or_else(|| anyhow!("No refresh registrations found."))?
-        }
+        },
     };
 
     if let Some(bundle_id) = args.bundle_id {
