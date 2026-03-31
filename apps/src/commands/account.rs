@@ -133,13 +133,6 @@ pub async fn execute(args: AccountArgs) -> Result<()> {
 }
 
 async fn login(args: LoginArgs) -> Result<()> {
-    let tfa_closure = || -> std::result::Result<String, String> {
-        Input::<String>::new()
-            .with_prompt("Enter 2FA code")
-            .interact_text()
-            .map_err(|e| e.to_string())
-    };
-
     let anisette_config = AnisetteConfiguration::default().set_configuration_path(get_data_path());
 
     let username = match args.username {
@@ -159,6 +152,19 @@ async fn login(args: LoginArgs) -> Result<()> {
     };
 
     let sp = crate::ui::spinner("Logging in...");
+
+    let tfa_closure = {
+        let sp = sp.clone();
+        move || -> std::result::Result<String, String> {
+            sp.suspend(|| {
+                Input::<String>::new()
+                    .with_prompt("Enter 2FA code")
+                    .interact_text()
+                    .map_err(|e| e.to_string())
+            })
+        }
+    };
+
     let account = Account::login(login_closure, tfa_closure, anisette_config).await?;
 
     let mut settings = load_account_store().await?;

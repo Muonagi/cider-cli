@@ -10,7 +10,7 @@ members = [
 
 [workspace.package]
 edition = "2024"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Muonagi"]
 license = "MIT"
 repository = "https://github.com/Muonagi/cider-cli"
