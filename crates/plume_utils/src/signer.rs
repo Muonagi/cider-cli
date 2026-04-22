@@ -434,8 +434,7 @@ impl Signer {
             }
         }
 
-        if self.options.mode != SignerMode::Adhoc
-            && bundle.bundle_type().should_have_entitlements()
+        if self.options.mode != SignerMode::Adhoc && bundle.bundle_type().should_have_entitlements()
         {
             if self.options.embedding.single_profile {
                 if let Some(ent_path) = &self.options.custom_entitlements {

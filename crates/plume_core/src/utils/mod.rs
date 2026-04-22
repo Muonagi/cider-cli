@@ -23,11 +23,10 @@ pub fn merge_entitlements(
     if let Some(new_app_id) = new_application_id {
         fn replace_wildcard(value: &mut Value, new_app_id: &str) {
             match value {
-                Value::String(s) => {
-                    if s.contains('*') {
-                        *s = s.replace('*', new_app_id);
-                    }
+                Value::String(s) if s.contains('*') => {
+                    *s = s.replace('*', new_app_id);
                 },
+                Value::String(_) => {},
                 Value::Array(arr) => {
                     for item in arr.iter_mut() {
                         replace_wildcard(item, new_app_id);
