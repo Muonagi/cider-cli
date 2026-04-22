@@ -1,7 +1,7 @@
 class Cider < Formula
   desc "CLI tool for signing and sideloading iOS apps"
   homepage "https://github.com/Muonagi/cider-cli"
-  version "0.1.5"
+  version "0.1.6"
   license "MIT"
 
   on_macos do
