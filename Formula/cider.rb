@@ -6,17 +6,17 @@ class Cider < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.5/cider-aarch64-apple-darwin.tar.gz"
-      sha256 "4ee5686b4183cdd9c76f90da32e451f7ac332e19daea18c3426b9425b282b9aa"
+      url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.6/cider-aarch64-apple-darwin.tar.gz"
+      sha256 "4d2b127fed60e891dcf1a554af05ff175f98f46a4be0dbeefda87f85183d3a9a"
     else
-      url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.5/cider-x86_64-apple-darwin.tar.gz"
-      sha256 "9530c9e6df8ceb10dfe0cda2d00dac839f665c23ef15d1866cae2868b9a29455"
+      url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.6/cider-x86_64-apple-darwin.tar.gz"
+      sha256 "da470d9fbdf7b44e1855a9d638ac76703029957e21031e7fc9feadfed03eb98f"
     end
   end
 
   on_linux do
-    url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.5/cider-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "8feea9ca4696daa27d501406beb9b36a0c7e99e63f43c2d50d0ce27481861ac3"
+    url "https://github.com/Muonagi/cider-cli/releases/download/v0.1.6/cider-x86_64-unknown-linux-gnu.tar.gz"
+    sha256 "66e3fdef2d70933ac92cd6383f374430c9610a3b3e2aa9889c9f015e8d9dd9ce"
   end
 
   def install
