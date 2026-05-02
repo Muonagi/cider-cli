@@ -197,7 +197,7 @@ pub async fn execute(args: SignArgs) -> Result<()> {
             let package = package
                 .as_ref()
                 .ok_or_else(|| anyhow!("Export is only supported for .ipa input"))?;
-            let archived_path = package.get_archive_based_on_path(&args.package)?;
+            let archived_path = package.archive_modified_payload()?;
             tokio::fs::copy(&archived_path, &output).await?;
             crate::ui::success(format!("Saved signed package to {}", output.display()));
         },
